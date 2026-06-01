@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}OHS Risk Prediction{% endblock %} — Ontario Ministry of Labour</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Government Banner -->
+  <div class="gov-banner">
+    <div class="container-xl px-4">
+      <i class="bi bi-shield-fill me-2"></i>
+      Ontario | Ministry of Labour, Immigration, Training and Skills Development
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="app-navbar navbar navbar-expand-lg">
+    <div class="container-xl px-4">
+      <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        <i class="bi bi-clipboard2-pulse-fill me-2"></i>
+        OHS Risk Prediction Platform
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.index') }}">
+              <i class="bi bi-plus-circle me-1"></i>New Prediction
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.health') }}" target="_blank">
+              <i class="bi bi-activity me-1"></i>API Status
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container-xl px-4 pt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Page Content -->
+  <main class="flex-grow-1 container-xl px-4 py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer mt-auto py-3">
+    <div class="container-xl px-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span class="text-muted small">
+          <i class="bi bi-c-circle me-1"></i>2025 Ontario Ministry of Labour — Data Analytics &amp; Research Branch
+        </span>
+        <span class="text-muted small">OHS Risk Prediction Platform &mdash; Internal Use Only</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

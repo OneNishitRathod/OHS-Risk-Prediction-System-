@@ -1,0 +1,240 @@
+/* =========================================================
+   OHS Risk Prediction Platform — Styles
+   Ministry of Labour, Immigration, Training and Skills Development
+   ========================================================= */
+
+:root {
+  --mol-black:      #1a1a1a;
+  --mol-blue:       #003da5;      /* Ontario government blue */
+  --mol-blue-light: #e8eef8;
+  --mol-red:        #cc0000;
+  --mol-gold:       #ffc72c;
+  --gov-banner-bg:  #1a1a1a;
+
+  --risk-critical: #dc3545;
+  --risk-high:     #fd7e14;
+  --risk-medium:   #0d6efd;
+  --risk-low:      #198754;
+}
+
+/* ── Global ─────────────────────────────────────────────── */
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #f5f6f8;
+  color: #1a1a1a;
+}
+
+/* ── Government Banner ───────────────────────────────────── */
+.gov-banner {
+  background: var(--gov-banner-bg);
+  color: #fff;
+  font-size: 0.78rem;
+  padding: 6px 0;
+  letter-spacing: 0.01em;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+.app-navbar {
+  background: var(--mol-blue);
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,.20);
+}
+.app-navbar .navbar-brand {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.app-navbar .navbar-brand:hover { color: var(--mol-gold); }
+.app-navbar .nav-link {
+  color: rgba(255,255,255,.80);
+  font-size: 0.875rem;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+.app-navbar .nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,.10);
+}
+.navbar-toggler { border-color: rgba(255,255,255,.3); }
+.navbar-toggler-icon { filter: invert(1); }
+
+/* ── Page Header ─────────────────────────────────────────── */
+.page-header { border-bottom: 2px solid #e2e6ea; padding-bottom: 1rem; }
+
+.page-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--mol-blue);
+  font-size: 1.5rem; color: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Form Cards ──────────────────────────────────────────── */
+.form-card {
+  border: 1px solid #d9dee4;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  background: #fff;
+}
+.form-card-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--mol-blue);
+  padding: 12px 16px;
+  border-radius: 11px 11px 0 0 !important;
+}
+.form-control, .form-select {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 0.875rem;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--mol-blue);
+  box-shadow: 0 0 0 0.2rem rgba(0,61,165,.15);
+}
+.form-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 4px;
+}
+
+/* ── Submit Bar ──────────────────────────────────────────── */
+.submit-bar {
+  background: #fff;
+  border-top: 1px solid #e9ecef;
+  padding: 16px 24px;
+  z-index: 100;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.06);
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-predict {
+  background: var(--mol-blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.btn-predict:hover {
+  background: #002c7a;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,61,165,.25);
+}
+
+/* ── Result Cards ────────────────────────────────────────── */
+.result-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+/* Dynamic header colors per severity/risk */
+.result-card-header-danger  { background: linear-gradient(135deg, #dc3545, #b02a37); color:#fff; padding:16px 20px; }
+.result-card-header-warning { background: linear-gradient(135deg, #fd7e14, #d96b10); color:#fff; padding:16px 20px; }
+.result-card-header-primary { background: linear-gradient(135deg, #0d6efd, #0a58ca); color:#fff; padding:16px 20px; }
+.result-card-header-success { background: linear-gradient(135deg, #198754, #146c43); color:#fff; padding:16px 20px; }
+.result-card-header-secondary { background: linear-gradient(135deg, #6c757d, #545b62); color:#fff; padding:16px 20px; }
+
+/* ── Severity Badge ──────────────────────────────────────── */
+.severity-badge {
+  display: inline-flex; align-items: center;
+  font-size: 1.5rem; font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 14px 32px;
+  border-radius: 50px;
+}
+.severity-danger   { background: #fde8ea; color: var(--risk-critical); }
+.severity-warning  { background: #fff3e8; color: var(--risk-high); }
+.severity-primary  { background: #e7f0ff; color: var(--risk-medium); }
+.severity-success  { background: #e8f5ee; color: var(--risk-low); }
+.severity-secondary{ background: #f0f0f0; color: #6c757d; }
+
+/* ── Probability Labels ──────────────────────────────────── */
+.prob-label { width: 68px; font-size: 0.78rem; flex-shrink: 0; }
+.prob-pct   { width: 44px; text-align: right; font-size: 0.78rem; flex-shrink: 0; }
+
+/* ── Risk Dial ───────────────────────────────────────────── */
+.risk-dial {
+  display: inline-flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 130px; height: 130px; border-radius: 50%;
+  margin: 0 auto;
+  border: 6px solid;
+  font-weight: 800;
+}
+.risk-dial-danger   { border-color: var(--risk-critical); color: var(--risk-critical); background: #fde8ea; }
+.risk-dial-warning  { border-color: var(--risk-high);     color: var(--risk-high);     background: #fff3e8; }
+.risk-dial-primary  { border-color: var(--risk-medium);   color: var(--risk-medium);   background: #e7f0ff; }
+.risk-dial-success  { border-color: var(--risk-low);      color: var(--risk-low);      background: #e8f5ee; }
+.risk-dial-secondary{ border-color: #6c757d;              color: #6c757d;              background: #f0f0f0; }
+.risk-score-number  { font-size: 2.2rem; line-height: 1.1; }
+.risk-score-label   { font-size: 0.75rem; font-weight: 500; opacity: .65; }
+
+/* ── Risk Category Badge ─────────────────────────────────── */
+.risk-category-badge {
+  display: inline-block;
+  font-size: 0.825rem; font-weight: 700;
+  padding: 5px 16px; border-radius: 50px; letter-spacing: 0.02em;
+}
+.risk-badge-danger   { background: #fde8ea; color: var(--risk-critical); }
+.risk-badge-warning  { background: #fff3e8; color: var(--risk-high); }
+.risk-badge-primary  { background: #e7f0ff; color: var(--risk-medium); }
+.risk-badge-success  { background: #e8f5ee; color: var(--risk-low); }
+.risk-badge-secondary{ background: #f0f0f0; color: #6c757d; }
+
+/* ── Risk Factors Table ──────────────────────────────────── */
+.factor-row {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+/* ── Input Snippet ───────────────────────────────────────── */
+.input-snippet {
+  background: #f8f9fa;
+  border-left: 3px solid var(--mol-blue);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+}
+
+/* ── Detail Fields (summary table) ──────────────────────── */
+.detail-field { padding: 6px 0; }
+.detail-label { font-size: 0.75rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.detail-value { font-size: 0.875rem; color: #1a1a1a; font-weight: 500; }
+
+/* ── Footer ──────────────────────────────────────────────── */
+.app-footer {
+  background: #fff;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.8rem;
+}
+
+/* ── Bootstrap badge overrides for subtle variants ──────── */
+.bg-danger-subtle   { background-color: #fde8ea !important; }
+.bg-warning-subtle  { background-color: #fff3e8 !important; }
+.bg-primary-subtle  { background-color: #e7f0ff !important; }
+.bg-success-subtle  { background-color: #e8f5ee !important; }
+.bg-secondary-subtle{ background-color: #f0f0f0 !important; }
+.text-danger-emphasis  { color: var(--risk-critical) !important; }
+.text-warning-emphasis { color: var(--risk-high)     !important; }
+.text-primary-emphasis { color: var(--risk-medium)   !important; }
+.text-success-emphasis { color: var(--risk-low)      !important; }
+.border-danger-subtle  { border-color: #f5c2c7 !important; }
+.border-warning-subtle { border-color: #ffd9b5 !important; }
+.border-primary-subtle { border-color: #b8d0ff !important; }
+.border-success-subtle { border-color: #a3d9bc !important; }
+
+/* ── Print ───────────────────────────────────────────────── */
+@media print {
+  .app-navbar, .gov-banner, .app-footer, .btn, .submit-bar { display: none !important; }
+  .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+}

@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block title %}Prediction Results{% endblock %}
+
+{% block content %}
+
+{# ── Severity helpers ─────────────────────────────────────────────────────── #}
+{% set sev = severity_result.severity_level if severity_result else 'Unknown' %}
+{% set sev_map = {
+  'Critical': ('danger',  'bi-exclamation-octagon-fill', 'CRITICAL'),
+  'High':     ('warning', 'bi-exclamation-triangle-fill','HIGH'),
+  'Medium':   ('primary', 'bi-info-circle-fill',         'MEDIUM'),
+  'Low':      ('success', 'bi-check-circle-fill',        'LOW'),
+  'Unknown':  ('secondary','bi-question-circle-fill',    'UNKNOWN'),
+} %}
+{% set sev_class, sev_icon, sev_label = sev_map.get(sev, sev_map['Unknown']) %}
+
+{# ── Risk helpers ─────────────────────────────────────────────────────────── #}
+{% set risk_score = risk_result.risk_score if risk_result else 0 %}
+{% set risk_cat   = risk_result.risk_category if risk_result else 'N/A' %}
+{% set risk_lvl   = risk_result.risk_level_int if risk_result else 0 %}
+{% set risk_color_map = {4:'danger', 3:'warning', 2:'primary', 1:'success'} %}
+{% set risk_class = risk_color_map.get(risk_lvl, 'secondary') %}
+{% set risk_pct   = risk_score | int %}
+
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+  <div class="d-flex align-items-center gap-3">
+    <div class="page-icon bg-{{ sev_class }}">
+      <i class="bi {{ sev_icon }} text-white"></i>
+    </div>
+    <div>
+      <h1 class="h3 mb-0 fw-bold">Prediction Results</h1>
+      <p class="text-muted mb-0 small">Both models completed successfully</p>
+    </div>
+  </div>
+  <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>New Prediction
+  </a>
+</div>
+
+<!-- ── RESULTS ROW ─────────────────────────────────────────────────────────── -->
+<div class="row g-4 mb-4">
+
+  <!-- Model 1: NLP Severity -->
+  <div class="col-lg-6">
+    <div class="card result-card h-100">
+      <div class="card-header result-card-header-{{ sev_class }}">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-chat-quote-fill fs-5"></i>
+          <div>
+            <div class="fw-bold">Model 1 — NLP Severity Classifier</div>
+            <div class="small opacity-75">SentenceTransformer + LogisticRegression</div>
+          </div>
+          <span class="badge bg-white text-dark ms-auto fw-semibold small">all-MiniLM-L6-v2</span>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        {% if severity_error %}
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ severity_error }}
+          </div>
+        {% elif severity_result %}
+
+          <!-- Severity Badge -->
+          <div class="text-center mb-4">
+            <div class="severity-badge severity-{{ sev_class }}">
+              <i class="bi {{ sev_icon }} me-2"></i>{{ sev_label }}
+            </div>
+          </div>
+
+          <!-- Confidence Bar -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small fw-semibold text-muted">Model Confidence</span>
+              <span class="small fw-bold text-{{ sev_class }}">
+                {{ "%.1f"|format(severity_result.confidence * 100) }}%
+              </span>
+            </div>
+            <div class="progress" style="height: 12px; border-radius: 6px;">
+              <div class="progress-bar bg-{{ sev_class }}"
+                   role="progressbar"
+                   style="width: {{ "%.1f"|format(severity_result.confidence * 100) }}%; border-radius: 6px;"
+                   aria-valuenow="{{ "%.1f"|format(severity_result.confidence * 100) }}"
+                   aria-valuemin="0" aria-valuemax="100">
+              </div>
+            </div>
+          </div>
+
+          <!-- Probability Breakdown -->
+          <div class="mb-2">
+            <p class="small fw-semibold text-muted mb-2">Class Probability Breakdown</p>
+            {% set prob_colors = {'Critical':'danger','High':'warning','Medium':'primary','Low':'success'} %}
+            {% for cls, prob in severity_result.probabilities.items() | sort(attribute='1', reverse=True) %}
+              {% set pct = "%.1f"|format(prob * 100) %}
+              {% set pcls = prob_colors.get(cls, 'secondary') %}
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="prob-label text-{{ pcls }} fw-semibold">{{ cls }}</span>
+                <div class="progress flex-grow-1" style="height: 8px; border-radius: 4px;">
+                  <div class="progress-bar bg-{{ pcls }}" style="width: {{ pct }}%; border-radius: 4px;"></div>
+                </div>
+                <span class="prob-pct text-muted">{{ pct }}%</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Input text snippet -->
+          <div class="input-snippet mt-3">
+            <div class="small text-muted fw-semibold mb-1">
+              <i class="bi bi-chat-left-text me-1"></i>Inspection Text (excerpt)
+            </div>
+            <p class="small mb-0 fst-italic">
+              "{{ inspection_text[:200] }}{% if inspection_text|length > 200 %}…{% endif %}"
+            </p>
+          </div>
+
+        {% else %}
+          <div class="text-muted text-center py-4">No severity prediction available.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Model 2: Risk Score -->
+  <div class="col-lg-6">
+    <div class="card result-card h-100">
+      <div class="card-header result-card-header-{{ risk_class }}">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-graph-up-arrow fs-5"></i>
+          <div>
+            <div class="fw-bold">Model 2 — Risk Score Predictor</div>
+            <div class="small opacity-75">XGBoost Regressor + Feature Engineering</div>
+          </div>
+          <span class="badge bg-white text-dark ms-auto fw-semibold small">0 – 100</span>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        {% if risk_error %}
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ risk_error }}
+          </div>
+        {% elif risk_result %}
+
+          <!-- Score Dial -->
+          <div class="text-center mb-4">
+            <div class="risk-dial risk-dial-{{ risk_class }}">
+              <div class="risk-score-number">{{ risk_score }}</div>
+              <div class="risk-score-label">/ 100</div>
+            </div>
+            <div class="mt-2">
+              <span class="risk-category-badge risk-badge-{{ risk_class }}">
+                {{ risk_cat }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Risk Gauge Bar -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small fw-semibold text-muted">Workplace Risk Score</span>
+              <span class="small fw-bold text-{{ risk_class }}">{{ risk_score }}/100</span>
+            </div>
+            <div class="progress risk-gauge-bar" style="height: 20px; border-radius: 10px;">
+              <div class="progress-bar bg-{{ risk_class }} risk-bar-animated"
+                   role="progressbar"
+                   data-target="{{ risk_pct }}"
+                   style="width: 0%; border-radius: 10px; transition: width 1.2s ease-in-out;">
+              </div>
+            </div>
+            <!-- Scale ticks -->
+            <div class="d-flex justify-content-between mt-1">
+              <span class="small text-success">Low</span>
+              <span class="small text-primary">Medium</span>
+              <span class="small text-warning">High</span>
+              <span class="small text-danger">Critical</span>
+            </div>
+          </div>
+
+          <!-- Key Risk Factors from structured input -->
+          <div class="risk-factors">
+            <p class="small fw-semibold text-muted mb-2">
+              <i class="bi bi-list-check me-1"></i>Key Input Factors
+            </p>
+            <div class="row g-2">
+              {% set factors = [
+                ('Severity (from NLP)', sev, sev_class),
+                ('Order Type', structured.ORDER_TYPE, 'secondary'),
+                ('Order Status', structured.ORDER_STATUS, 'secondary'),
+                ('Case Type', structured.CASE_TYPE, 'secondary'),
+                ('Sector (NAICS)', structured.PRIMARY_NAICS, 'secondary'),
+              ] %}
+              {% for label, value, cls in factors %}
+                {% if value %}
+                  <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center factor-row">
+                      <span class="small text-muted">{{ label }}</span>
+                      <span class="badge bg-{{ cls }}-subtle text-{{ cls }}-emphasis border border-{{ cls }}-subtle small">
+                        {{ value }}
+                      </span>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+
+        {% else %}
+          <div class="text-muted text-center py-4">No risk score prediction available.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /results row -->
+
+<!-- ── INSPECTION DETAILS SUMMARY ──────────────────────────────────────────── -->
+<div class="card mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span><i class="bi bi-clipboard-data me-2"></i><strong>Submitted Inspection Details</strong></span>
+    <button class="btn btn-sm btn-outline-secondary" type="button"
+            data-bs-toggle="collapse" data-bs-target="#detailsCollapse">
+      <i class="bi bi-chevron-down"></i>
+    </button>
+  </div>
+  <div class="collapse show" id="detailsCollapse">
+    <div class="card-body">
+      <div class="row g-3">
+        {% set field_labels = [
+          ('Field Visit Date',  structured.FIELD_VISIT_DATE),
+          ('Field Visit Type',  structured.FIELD_VISIT_TYPE),
+          ('Case Type',         structured.CASE_TYPE),
+          ('Case Status',       structured.CASE_STATUS),
+          ('Workplace ID',      structured.WORKPLACE_ID),
+          ('Workplace Name',    structured.WORKPLACE_NAME_AT_FV_TIME),
+          ('Workplace Address', structured.WORKPLACE_ADDRESS_AT_FV_TIME),
+          ('Postal Code',       structured.POSTAL_CODE),
+          ('Primary NAICS',     structured.PRIMARY_NAICS),
+          ('NAICS Description', structured.NAICS_DESCRIPTION),
+          ('Contravener Role',  structured.CONTRAVENER_ROLE),
+          ('Contravener Org ID',structured.CONTRAVENER_ORG_ID),
+          ('Contravener Name',  structured.CONTRAVENER_NAME),
+          ('Order Type',        structured.ORDER_TYPE),
+          ('Order Status',      structured.ORDER_STATUS),
+          ('Case Act',          structured.CASE_ACT),
+          ('Act / Reg ID',      structured.ACT_REG_ID),
+          ('Act Regulation Name', structured.ACT_REGULATION_NAME),
+          ('Section',           structured.SEC),
+          ('Subsection',        structured.SUBSEC),
+          ('Clause',            structured.CLAUSE),
+        ] %}
+        {% for label, val in field_labels %}
+          {% if val %}
+            <div class="col-sm-6 col-lg-4">
+              <div class="detail-field">
+                <div class="detail-label">{{ label }}</div>
+                <div class="detail-value">{{ val }}</div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex gap-2 justify-content-end mb-4">
+  <button onclick="window.print()" class="btn btn-outline-secondary">
+    <i class="bi bi-printer me-1"></i>Print / Export
+  </button>
+  <a href="{{ url_for('main.index') }}" class="btn btn-predict">
+    <i class="bi bi-plus-circle me-1"></i>New Prediction
+  </a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Animate the risk gauge bar on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".risk-bar-animated").forEach(bar => {
+      const target = bar.dataset.target;
+      setTimeout(() => { bar.style.width = target + "%"; }, 200);
+    });
+  });
+</script>
+{% endblock %}
