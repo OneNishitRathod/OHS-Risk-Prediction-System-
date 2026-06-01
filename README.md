@@ -218,5 +218,4 @@ Set `USE_MOCK_PREDICTIONS=True` in your `.env` file. The app will use built-in d
 
 ## License
 
-Internal use only — Ontario Ministry of Labour, Immigration, Training and Skills Development.
-Not for public distribution.
+Ontario Ministry of Labour, Immigration, Training and Skills Development.
